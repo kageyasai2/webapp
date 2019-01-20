@@ -3,25 +3,32 @@ services:
   db:
     build: ./db_psql
     container_name: "db_psql"
-    ports:
-      - "5123:5432"
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
+    ports:
+      - "5123:5432"
     volumes:
       - ./db_psql/init:/docker-entrypoint-initdb.d
       - psql_go_data:/var/lib/postgresql/data
+    networks:
+      - my-network
   web:
-    tty: true
-    stdin_open: true
     build: ./web_go
     container_name: "web_go"
-    command: go run main.go
+    tty: true
+    stdin_open: true
     volumes:
       - ./web_go/app:/go/src/app
     ports:
-      - "5000:5000"
+      - "8080:8080"
     depends_on:
       - db
+    networks:
+      - my-network
 volumes:
   psql_go_data:
+
+networks:
+  my-network:
+    external: true
